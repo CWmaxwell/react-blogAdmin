@@ -52,15 +52,16 @@ export default [
       {
         path: '/article',
         icon: 'read',
-        name: '文章',
+        name: 'article',
         routes: [
           {
             path: '/article/list',
-            name: '文章列表',
+            name: 'list',
+            component: './Article/ArticleManage',
           },
           {
             path: '/article/articlecreate',
-            name: '文章创作',
+            name: 'articlecreate',
             component: './Article/ArticleCreate',
           },
         ],
@@ -69,11 +70,11 @@ export default [
       {
         path: '/tag',
         icon: 'tags',
-        name: '标签',
+        name: 'tag',
         routes: [
           {
             path: '/tag/manage',
-            name: '标签管理',
+            name: 'manage',
             component: './Tag/TagManage',
           },
         ],

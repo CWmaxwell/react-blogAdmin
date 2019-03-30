@@ -3,7 +3,7 @@ import request from '@/utils/request';
 
 // 登陆
 export async function adminLogin(params) {
-  return request('/api/login', {
+  return request('/api/admin/login', {
     method: 'POST',
     body: params,
   });
@@ -11,9 +11,83 @@ export async function adminLogin(params) {
 
 // 文章
 export async function addArticle(params) {
-  return request(`/api/article`, {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/article`, {
     method: 'POST',
     body: params,
+    headers: { Authorization: token },
+  });
+}
+
+export async function updateArticle(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/updatearticle/${params.key}`, {
+    method: 'POST',
+    body: params,
+    headers: { Authorization: token },
+  });
+}
+
+export async function queryArticle(params) {
+  const token = await localStorage.getItem('jwtToken');
+  if (params) {
+    return request(
+      `/api/admin/article?searchKeyword=${params.searchKeyword}&&selectState=${params.selectState}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
+  }
+  return request(`/api/admin/article`, {
+    headers: { Authorization: token },
+  });
+}
+
+export async function queryArticleDetail(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/articleDetail/${params.articleId}`, {
+    headers: { Authorization: token },
+  });
+}
+
+export async function deleteArticle(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/article?articleId=${params.articleId}`, {
+    method: 'DELETE',
+    headers: { Authorization: token },
+  });
+}
+
+// 评论
+export async function queryArticleComments(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/comment/article/${params.articleId}`, {
+    headers: { Authorization: token },
+  });
+}
+
+export async function deleteComment(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/comment?commentId=${params.commentId}`, {
+    method: 'DELETE',
+    headers: { Authorization: token },
+  });
+}
+
+export async function toTopComment(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/comment/top?commentId=${params.commentId}`, {
+    method: 'POST',
+    headers: { Authorization: token },
+  });
+}
+
+export async function postComment(params) {
+  const token = await localStorage.getItem('jwtToken');
+  return request(`/api/admin/comment/`, {
+    method: 'POST',
+    body: params,
+    headers: { Authorization: token },
   });
 }
 

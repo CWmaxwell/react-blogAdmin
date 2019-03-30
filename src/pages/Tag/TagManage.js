@@ -128,7 +128,7 @@ class TagManage extends PureComponent {
         ))}
       </div>
     );
-    return <div>{content}</div>;
+    return content;
   }
 }
 

@@ -6,7 +6,7 @@ export async function query() {
 
 export async function queryCurrent() {
   const token = await localStorage.getItem('jwtToken');
-  return request('/api/login/adminUser', {
+  return request('/api/admin/adminUser', {
     headers: { Authorization: token },
   });
 }

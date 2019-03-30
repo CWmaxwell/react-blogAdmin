@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Form, Button, Input, Select, Checkbox, Collapse, Spin } from 'antd';
 // import SimpleMDE from 'simplemde';
+import router from 'umi/router';
 import { connect } from 'dva';
 import SimpleMDE from 'react-simplemde-editor';
 import marked from 'marked';
@@ -21,10 +22,11 @@ class ArticleCreate extends PureComponent {
     super();
     this.state = {
       loading: false,
+      key: '',
       title: '',
-      author: '',
+      author: 'chenw247',
       keyword: [],
-      tag: [],
+      tags: [],
       desc: '',
       content: '',
       state: 1, // 文章发布状态 => 0草稿1已发布
@@ -48,7 +50,40 @@ class ArticleCreate extends PureComponent {
       });
     }).then(res => {
       if (res.code === 200) {
-        this.setState({ loading: false });
+        const { article, tag } = this.props;
+        const { isArticleUpdate, articleDetail } = article;
+        const { tagList } = tag;
+        if (isArticleUpdate) {
+          const {
+            key,
+            title,
+            desc,
+            author,
+            keyword,
+            state,
+            tags,
+            category,
+            content,
+          } = articleDetail;
+          const tagArr = [];
+          tagList.forEach(value => {
+            if (tags.indexOf(value.name) !== -1) {
+              tagArr.push(value._id);
+            }
+          });
+          this.setState({
+            key,
+            title,
+            author,
+            desc,
+            keyword,
+            state,
+            category,
+            content,
+            tags: tagArr,
+            loading: false,
+          });
+        }
       }
     });
   };
@@ -72,12 +107,12 @@ class ArticleCreate extends PureComponent {
   };
 
   handleChangeTag = value => {
-    this.setState({ tag: value });
+    this.setState({ tags: value });
   };
 
   onSubmit = e => {
     e.preventDefault();
-    const { title, author, desc, keyword, content, tag, category, state } = this.state;
+    const { title, author, desc, keyword, content, tags, category, state, key } = this.state;
     const { dispatch } = this.props;
     const params = {
       title,
@@ -85,38 +120,55 @@ class ArticleCreate extends PureComponent {
       desc,
       keyword,
       content,
-      tag,
+      tag: tags,
       category,
       state,
     };
-    new Promise(resolve => {
-      dispatch({
-        type: 'article/addArticle',
-        payload: {
-          resolve,
-          params,
-        },
+    if (key !== '') {
+      params.key = key;
+      new Promise(resolve => {
+        dispatch({
+          type: 'article/updateArticle',
+          payload: {
+            resolve,
+            params,
+          },
+        });
+      }).then(() => {
+        router.push('/article/list');
       });
-    }).then(() => {
-      this.setState({
-        title: '',
-        author: '',
-        desc: '',
-        keyword: '',
-        content: '',
+    } else {
+      new Promise(resolve => {
+        dispatch({
+          type: 'article/addArticle',
+          payload: {
+            resolve,
+            params,
+          },
+        });
+      }).then(() => {
+        router.push('/article/list');
+        // this.setState({
+        //   title: '',
+        //   author: '',
+        //   desc: '',
+        //   keyword: '',
+        //   content: '',
+        //   tags: [],
+        // });
       });
-    });
+    }
   };
 
   render() {
     const { tag } = this.props;
-    const { author, desc, title, keyword, content, loading } = this.state;
+    const { author, desc, title, keyword, content, loading, tags } = this.state;
     const { tagList } = tag;
     const tagOptions = tagList.map(value => ({ label: value.name, value: value._id }));
     const tagContent = loading ? (
       <Spin size="large" spinning={loading} />
     ) : (
-      <CheckboxGroup options={tagOptions} onChange={this.handleChangeTag} />
+      <CheckboxGroup options={tagOptions} value={tags} onChange={this.handleChangeTag} />
     );
     return (
       <div>
